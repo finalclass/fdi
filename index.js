@@ -48,32 +48,32 @@ module.exports.create = function () {
       });
     },
     try: function (fn) {
-      return new Try(fn);
+      var t = new Try(fn);
+      t.fdi = this;
+      return t;
     },
     provide: function (provideFunction) {
-      var di = this;
-
-      return new Try(provideFunction)
+      return this.try(provideFunction)
       (function () {
         log('for each bean');
         store.eachBean(function forEachBean(bean) {
           log('provide run init resource', bean.name);
-          di.initResource(bean)(this.pause()).run();
+          this.fdi.initResource(bean)(this.pause()).run();
         }, this);
       });
     },
     proto: function (name) {
-      var t = new Try();
+      var t = this.try();
       store.add(name, 'proto', t);
       return t;
     },
     shared: function (name) {
-      var t = new Try();
+      var t = this.try();
       store.add(name, 'shared', t);
       return t;
     },
     bean: function (name) {
-      var t = new Try();
+      var t = this.try();
       store.add(name, 'bean', t);
       return t;
     },
@@ -87,19 +87,14 @@ module.exports.create = function () {
         return this.getOne(resources);
       }
       log('creating `get()` Try');
-      return new Try
+      return this.try
       (function () {
         log('pausing for ' + resources.length + ' executions');
-        var next = this.pause(resources.length);
-
         resources.forEach(function (resource) {
           log('get all for each at', resource);
-          di.getOne(resource)
-            (function (instance) {
+          di.getOne(resource)(function (instance) {
               hash[resource] = instance;
-            })
-            (next)
-            .run();
+            })(this.pause()).run();
         }, this);
       })
       (function () {
@@ -111,7 +106,7 @@ module.exports.create = function () {
 
       log('getting', name);
 
-      return new Try(function () {
+      return this.try(function () {
         log('running `get()` Try');
         var resource = store.get(name);
         if (!resource) {
