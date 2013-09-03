@@ -1,0 +1,17 @@
+{
+  "name": "fdi",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vows test/*"
+  },
+  "devDependencies": {
+    "vows": "*"
+  },
+  "author": "Szymon Wygnański <s@finalclass.net>",
+  "license": "MIT",
+  "dependencies": {
+    "try": "~0.4.0"
+  }
+}
